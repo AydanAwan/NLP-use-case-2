@@ -8,7 +8,6 @@ from keras.models import load_model
 import json
 import random
 from nltk.stem import WordNetLemmatizer
-import tkinter
 from tkinter import *
 intents = json.loads(open('intents.json').read())
 words = pickle.load(open('words.pkl', 'rb'))
@@ -18,12 +17,14 @@ model = load_model('chatbot_model.h5')
 
 
 def clean_up_sentence(sentence):
+    """Method for cleaning user input."""
     sentence_words = nltk.word_tokenize(sentence)
     sentence_words = [lemmatizer.lemmatize(word.lower()) for word in sentence_words]
     return sentence_words
 
 
 def bow(sentence, words, show_details=True):
+    """function for turning user input into bag of words."""
     sentence_words = clean_up_sentence(sentence)
     bag = [0]*len(words)
     for s in sentence_words:
@@ -36,6 +37,7 @@ def bow(sentence, words, show_details=True):
 
 
 def predict_class(sentence, model):
+    """method for predicting related tags"""
     p = bow(sentence, words, show_details=False)
     res = model.predict(np.array([p]))[0]
     ERROR_THRESHOLD = 0.25
@@ -48,22 +50,25 @@ def predict_class(sentence, model):
 
 
 def getResponse(ints, intents_json):
+    "method for getting one of the responses related to teh tag at random"
     tag = ints[0]['intent']
     list_of_intents = intents_json['intents']
     for i in list_of_intents:
-        if(i['tag']== tag):
+        if(i['tag'] == tag):
             result = random.choice(i['responses'])
             break
     return result
 
 
 def chatbot_response(text):
+    """putting together previous methods to respond to the user input"""
     ints = predict_class(text, model)
     res = getResponse(ints, intents)
     return res
 
 #Creating GUI with tkinter
 def send():
+    """method for the send button to carry out teh response methods"""
     msg = EntryBox.get("1.0",'end-1c').strip()
     EntryBox.delete("0.0", END)
     if msg != '':
@@ -97,3 +102,4 @@ ChatLog.place(x=6,y=6, height=386, width=370)
 EntryBox.place(x=128, y=401, height=90, width=265)
 SendButton.place(x=6, y=401, height=90)
 base.mainloop()
+# designing the chat window
